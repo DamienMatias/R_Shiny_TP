@@ -6,7 +6,6 @@
 # 
 #    http://shiny.rstudio.com/
 #
-
 library(shiny)
 
 # Define UI for application that draws a histogram
@@ -27,14 +26,21 @@ shinyUI(fluidPage(
   ),
   
   # Sidebar with a slider input for number of bins 
-  sidebarLayout(
+  sidebarLayout(position="left",
     sidebarPanel(
-      selectizeInput('user_id', 'User ID', choices = 1:32)
+      selectizeInput('user_id', 'User ID', choices = 1:32),width=10
     ),
     
     # Show a plot of the generated distribution
     mainPanel(
-       plotOutput("distPlot")
+      tabsetPanel( tabPanel("distPlot",plotOutput("distPlot")),
+      tabPanel("Last week",plotOutput("last_seven")),
+      tabPanel("info",verbatimTextOutput("info")),
+      tabPanel("summary",verbatimTextOutput("summary"),style='width: 900px'))
+      
+    
+     
+      
     )
   )
 ))
