@@ -13,7 +13,7 @@ library(shiny)
 shinyUI(fluidPage(
   
   # Application title
-  titlePanel("Old Faithful Geyser Data"),
+  titlePanel("Data Mining in R - My first app on Shiny"),
   
   headerPanel(
     fileInput("file1", "Choose CSV File",
