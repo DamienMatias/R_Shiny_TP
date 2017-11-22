@@ -47,6 +47,9 @@ shinyServer(function(input, output) {
     df_by_user_by_week$Weekday <- factor(df_by_user_by_week$Weekday, levels= c("lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"))
     df_by_user_by_week = df_by_user_by_week[order(df_by_user_by_week$Weekday),]
     
+    df_by_user_by_week$TypeFactor = factor(df_by_user_by_week$TypeFactor,levels=c("Observation week", "Auto skipped", "Cheated", "Friend",  "On time", "Skipped", "Snoozed"))
+    
+    print(df_by_user_by_week$TypeFactor)
     output$ModeSelector <- renderUI({
       selectInput("mode_type", "Mode:",
                   levels(df_by_user_by_week$TypeFactor), selected = input$mode_type)
