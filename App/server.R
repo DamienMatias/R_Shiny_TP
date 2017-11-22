@@ -17,7 +17,7 @@ shinyServer(function(input, output) {
  
   
   
-  output$distPlot <- renderPlot({
+  output$modes_week <- renderPlot({
     
     # generate bins based on input$bins from ui.R
     df = read.xlsx(input$file1$datapath)
@@ -28,7 +28,26 @@ shinyServer(function(input, output) {
     df$DayIntervals <- discretize(df$Time - floor(df$Time), method = "fixed", categories = c(0, 0.25, 0.5, 0.75, 1), labels = c("Nuit", "Matin", "Apres midi", "Soir"))
     
     df_by_user = df[df$User == input$user_id,]
-    barplot(table(df_by_user$Weekday), main = "Histogram of modes over a week")
+    
+    week_numbers <- c()
+    
+    for (i in 1:nrow(df_by_user)) {
+      week_number <- as.numeric(floor(difftime(df_by_user$NewTime[i], df_by_user$NewTime[1], units = 'weeks')))+1
+      week_numbers <- c(week_numbers, week_number)
+    }
+    df_by_user$WeekNumber <- week_numbers
+    output$WeekSelector <- renderUI({
+      sliderInput("week_number", "Week:",
+                  min = 1, max = max(week_numbers),
+                  value = 1)
+    })
+    
+    df_by_user_by_week <- df_by_user[df_by_user$WeekNumber == input$week_number,]
+    
+    df_by_user_by_week$Weekday <- factor(df_by_user_by_week$Weekday, levels= c("lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"))
+    df_by_user_by_week = df_by_user_by_week[order(df_by_user_by_week$Weekday),]
+    
+    barplot(table(df_by_user_by_week$Weekday), main = "Histogram of modes over a week")
     #print(summary(df_by_user))
     
   })

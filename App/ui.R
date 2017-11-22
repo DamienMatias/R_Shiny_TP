@@ -33,16 +33,17 @@ shinyUI(fluidPage(
     
     # Show a plot of the generated distribution
     mainPanel(
-      tabsetPanel( tabPanel("distPlot",plotOutput("distPlot")),
+      tabsetPanel( 
+      tabPanel("Modes over a week",plotOutput("modes_week"),
+               uiOutput("WeekSelector")),
       tabPanel("Last week",plotOutput("last_seven")),
       tabPanel("Info about types",verbatimTextOutput("info"),
                       verbatimTextOutput("total"),
-      verbatimTextOutput("summary"),style='width: 900px')))
+      verbatimTextOutput("summary"),style='width: 900px'))
+      )
       
       
     
-     
-      
     )
   )
 )
