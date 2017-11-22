@@ -34,8 +34,10 @@ shinyUI(fluidPage(
     # Show a plot of the generated distribution
     mainPanel(
       tabsetPanel( 
-      tabPanel("Modes over a week",plotOutput("modes_week"),
+      tabPanel("Modes over a week",plotOutput("modes_week"), plotOutput("modes_lines"),
                uiOutput("WeekSelector"), uiOutput("ModeSelector")),
+      tabPanel("Smoking density intervals in a weel",plotOutput("intervals"), uiOutput("IntervalSelector")),
+      tabPanel("Modes density by user",tableOutput("modes_density")),
       # tabPanel("Last week",plotOutput("last_seven")),
       tabPanel("Info about types",verbatimTextOutput("info"),
                       verbatimTextOutput("total"),

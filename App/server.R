@@ -51,7 +51,7 @@ shinyServer(function(input, output) {
       selectInput("mode_type", "Mode:",
                   levels(df_by_user_by_week$TypeFactor), selected = input$mode_type)
     })
-    print(input$mode_type)
+    
     
     df_by_user_by_week_by_mode <- df_by_user_by_week[df_by_user_by_week$TypeFactor == input$mode_type,]
     
@@ -74,6 +74,33 @@ shinyServer(function(input, output) {
     
   })
   
+  dataset_intervals_week <- reactive({
+    infile <- input$file1
+    if (is.null(infile)) {
+      # User has not uploaded a file yet
+      return(NULL)
+    }
+    df = read.xlsx(input$file1$datapath)
+    df$Weekday <- as.factor(weekdays(as.Date(df$Time, origin="1899-12-30")))
+    df$TypeFactor <- as.factor(df$Type)
+    df$UserFactor <- as.factor(df$User)
+    df$NewTime <- as.POSIXct(df$Time*(60*60*24), origin="1899-12-30", tz="GMT")
+    df$DayIntervals <- discretize(df$Time - floor(df$Time), method = "fixed", categories = c(0, 0.25, 0.5, 0.75, 1), labels = c("Nuit", "Matin", "Apres midi", "Soir"))
+    
+    df_by_user = df[df$User == input$user_id,]
+    df_by_user$Weekday <- factor(df_by_user$Weekday, levels= c("lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"))
+    df_by_user = df_by_user[order(df_by_user$Weekday),]
+    
+    output$IntervalSelector <- renderUI({
+      selectInput("interval", "Interval:",
+                  levels(df_by_user$DayIntervals), selected = input$interval)
+    })
+    
+    
+    df_by_user_by_interval <- df_by_user[df_by_user$DayIntervals == input$interval,]
+    
+  })
+  
   
   output$modes_week <- renderPlot({
     
@@ -83,6 +110,30 @@ shinyServer(function(input, output) {
     
     if(is.null(dataset_modes_week())) return(NULL)
     barplot(table(dataset_modes_week()$Weekday), main = "Histogram of modes over a week")
+    
+  })
+  
+  output$modes_lines <- renderPlot({
+    
+    # generate bins based on input$bins from ui.R
+    
+    
+    
+    if(is.null(dataset_modes_week())) return(NULL)
+    plot(table(dataset_modes_week()$Weekday), main = "Plot of modes over a week", type = 'l')
+    
+  })
+  
+  output$modes_density <- renderTable({
+    #Day_intervals <- count(dataset_by_user()$DayIntervals)
+    mode_density <- table(dataset_by_user()$TypeFactor, dataset_by_user()$DayIntervals)
+  }
+  )
+  
+  output$intervals <- renderPlot({
+
+    if(is.null(dataset_intervals_week())) return(NULL)
+    barplot(table(dataset_intervals_week()$Weekday), main = "Histogram of smokings intervals", type = 'l')
     
   })
   
