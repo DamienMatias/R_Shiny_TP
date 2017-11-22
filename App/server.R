@@ -14,6 +14,9 @@ library(arules)
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   
+ 
+  
+  
   output$distPlot <- renderPlot({
     
     # generate bins based on input$bins from ui.R
@@ -71,6 +74,17 @@ shinyServer(function(input, output) {
     #print(typeof(summary(df$Type)))
     #stat.mode <- function(x) {cbind(freq = table(x), percentage = prop.table(table(x))*100)}
     #stat.mode(ppppp$Type)
+    
+  })
+  output$total <- renderPrint({
+    
+    df = read.xlsx(input$file1$datapath)
+    df$Type <- as.factor(df$Type)
+    df$User <- as.factor(df$User)
+    df$Time <- as.POSIXct(df$Time*(60*60*24), origin="1899-12-30", tz="GMT")
+    info=df[df$User == input$user_id,]
+    total=nrow(info)
+    cat("Total number of cigarettes for all modes : ", total)
     
   })
   

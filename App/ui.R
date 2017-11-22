@@ -35,12 +35,14 @@ shinyUI(fluidPage(
     mainPanel(
       tabsetPanel( tabPanel("distPlot",plotOutput("distPlot")),
       tabPanel("Last week",plotOutput("last_seven")),
-      tabPanel("info",verbatimTextOutput("info")),
-      tabPanel("summary",verbatimTextOutput("summary"),style='width: 900px'))
+      tabPanel("Info about types",verbatimTextOutput("info"),
+                      verbatimTextOutput("total"),
+      verbatimTextOutput("summary"),style='width: 900px')))
+      
       
     
      
       
     )
   )
-))
+)
