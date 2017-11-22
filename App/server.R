@@ -11,6 +11,8 @@ library(shiny)
 library(openxlsx)
 library(plyr)
 library(arules)
+library(lubridate) 
+library(ggplot2)
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   
@@ -49,7 +51,6 @@ shinyServer(function(input, output) {
     
     df_by_user_by_week$TypeFactor = factor(df_by_user_by_week$TypeFactor,levels=c("Observation week", "Auto skipped", "Cheated", "Friend",  "On time", "Skipped", "Snoozed"))
     
-    print(df_by_user_by_week$TypeFactor)
     output$ModeSelector <- renderUI({
       selectInput("mode_type", "Mode:",
                   levels(df_by_user_by_week$TypeFactor), selected = input$mode_type)
@@ -140,34 +141,25 @@ shinyServer(function(input, output) {
     
   })
   
-  # output$last_seven <- renderPlot({
-  #   
-  #   df = read.xlsx(input$file1$datapath)
-  #   df$Type <- as.factor(df$Type)
-  #   df$User <- as.factor(df$User)
-  #   df$Time <- as.POSIXct(df$Time*(60*60*24), origin="1899-12-30", tz="GMT")
-  #   
-  #   
-  #   df_without_hour=df
-  #   df_without_hour$Time <- as.Date(df_without_hour$Time) #Removing the hour
-  #   if (!exists("last_seven")){
-  #     last_seven = df[FALSE,]
-  #   
-  #     for (i in 1 : nrow(df) ){  #Take the last 7 days
-  #       if (as.numeric(difftime(max(df_without_hour$Time) ,df_without_hour$Time[i] ,
-  #                             units = c("days"))) < 6.999 ){
-  #         last_seven=rbind(last_seven,df_without_hour[i,])
-  #       }
-  #     }
-  #   }
-  #   last_seven__by_user = last_seven[last_seven$User == input$user_id,]
-  #   seven= data.frame(table(last_seven__by_user$Time)) #Count the freq for each date
-  #   seven
-  #   somme=sum(seven$Freq)#Count the total number of cigarettes smoked the last seven days
-  #   plot(seven,main=paste("Total number of smoked cigarettes during the last week: ",somme ))
-  #   
-  # })
-  # 
+  output$last_seven <- renderPlot({
+    
+    max_date_per_user=max(dataset_by_user()$NewTime)
+    weekdays_user=data.frame("days"=c("lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"))
+    seven_seven = sum(dataset_by_user()$NewTime>=max_date_per_user-days(7))
+    seven_days <- c()
+    for(i in seq(1, 7)){   #mettre l'id user ici
+      seven_days[i]=sum(dataset_by_user()$NewTime>=max_date_per_user-days(7) & format(dataset_by_user()$NewTime,"%A")==weekdays_user$days[i])
+    }
+    
+    weekdays_user$nbre_cig=seven_days
+    weekdays_user$days <- factor(weekdays_user$days, levels= c("lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"))
+    weekdays_user = weekdays_user[order(weekdays_user$days),]
+    
+    plot= qplot(weekdays_user$days,weekdays_user$nbre_cig, geom="line", group=1)
+    plot = plot + labs(x="weekday") + labs(y="number of cigarettes")
+    print(plot)
+  })
+  
   output$summary <- renderPrint({
 
     info=dataset_by_user()
